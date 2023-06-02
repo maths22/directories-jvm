@@ -1,0 +1,51 @@
+import java.nio.file.Files
+
+plugins {
+    // Apply the java-library plugin for API and implementation separation.
+    id 'java-library'
+}
+
+repositories {
+    // Use Maven Central for resolving dependencies.
+    mavenCentral()
+}
+
+dependencies {
+}
+
+
+task compileJNI {
+    dependsOn compileJava
+
+    doLast {
+        Files.createDirectories(file("build/native").toPath());
+        exec {
+            workingDir "build/native"
+            commandLine "cmake", "../.."
+        }
+        exec {
+            workingDir "build/native"
+            commandLine "cmake", "--build", "."
+        }
+    }
+}
+
+clean.doFirst {
+    delete fileTree('src/main/include') {
+        include 'jni_*.h'
+    }
+}
+
+processResources {
+    dependsOn compileJNI
+}
+
+testing {
+    suites {
+        // Configure the built-in test suite
+        test {
+            // Use JUnit4 test framework
+            useJUnit('4.13.2')
+        }
+    }
+}

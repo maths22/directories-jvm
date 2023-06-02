@@ -1,6 +1,8 @@
-package dev.dirs;
+package com.maths22.directories;
 
-import static dev.dirs.Util.*;
+import java.util.UUID;
+
+import static com.maths22.directories.Util.*;
 
 /** {@code BaseDirectories} provides paths of user-invisible standard directories, following the conventions of the operating system the library is running on.
   * <p>
@@ -273,7 +275,7 @@ public final class BaseDirectories {
         runtimeDir    = null;
         break;
       case WIN:
-        String[] winDirs = getWinDirs("5E6C858F-0E22-4760-9AFE-EA3317B67173", "3EB685DB-65F9-4CF6-A03A-E3EF65729F3D", "F1B32785-6FBA-4FCF-9D55-7B8E7F157091");
+        String[] winDirs = getWinDirs(UUID.fromString("5E6C858F-0E22-4760-9AFE-EA3317B67173"), UUID.fromString("3EB685DB-65F9-4CF6-A03A-E3EF65729F3D"), UUID.fromString("F1B32785-6FBA-4FCF-9D55-7B8E7F157091"));
         homeDir       = winDirs[0];
         dataDir       = winDirs[1];
         dataLocalDir  = winDirs[2];

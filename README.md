@@ -59,9 +59,9 @@ It can be used on any Java version >= 6.
 Library run by user Alice:
 
 ```java
-import dev.dirs.ProjectDirectories;
+import com.maths22.directories.ProjectDirectories;
 import dev.dirs.BaseDirectories;
-import dev.dirs.UserDirectories;
+import com.maths22.directories.UserDirectories;
 
 ProjectDirectories myProjDirs = ProjectDirectories.from("com", "Foo Corp", "Bar App");
 myProjDirs.configDir;

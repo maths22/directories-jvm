@@ -1,6 +1,8 @@
-package dev.dirs;
+package com.maths22.directories;
 
-import static dev.dirs.Util.*;
+import java.util.UUID;
+
+import static com.maths22.directories.Util.*;
 
 /** {@code UserDirectories} provides paths of user-facing standard directories, following the conventions of the operating system the library is running on.
   *
@@ -342,15 +344,15 @@ public final class UserDirectories {
         break;
       case WIN:
         String[] winDirs = getWinDirs(
-            "5E6C858F-0E22-4760-9AFE-EA3317B67173",
-            "4BD8D571-6D19-48D3-BE97-422220080E43",
-            "B4BFCC3A-DB2C-424C-B029-7FE99A87C641",
-            "FDD39AD0-238F-46AF-ADB4-6C85480369C7",
-            "374DE290-123F-4565-9164-39C4925E467B",
-            "33E28130-4E1E-4676-835A-98395C3BC3BB",
-            "DFDF76A2-C82A-4D63-906A-5644AC457385",
-            "A63293E8-664E-48DB-A079-DF759E0509F7",
-            "18989B1D-99B5-455B-841C-AB7C74E4DDFC");
+                UUID.fromString("5E6C858F-0E22-4760-9AFE-EA3317B67173"),
+                UUID.fromString("4BD8D571-6D19-48D3-BE97-422220080E43"),
+                UUID.fromString("B4BFCC3A-DB2C-424C-B029-7FE99A87C641"),
+                UUID.fromString("FDD39AD0-238F-46AF-ADB4-6C85480369C7"),
+                UUID.fromString("374DE290-123F-4565-9164-39C4925E467B"),
+                UUID.fromString("33E28130-4E1E-4676-835A-98395C3BC3BB"),
+                UUID.fromString("DFDF76A2-C82A-4D63-906A-5644AC457385"),
+                UUID.fromString("A63293E8-664E-48DB-A079-DF759E0509F7"),
+                UUID.fromString("18989B1D-99B5-455B-841C-AB7C74E4DDFC"));
         homeDir       = winDirs[0];
         audioDir      = winDirs[1];
         fontDir       = null;

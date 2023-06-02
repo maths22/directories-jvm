@@ -1,10 +1,12 @@
-package dev.dirs;
+package com.maths22.directories;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
+
+import java.util.UUID;
 
 public final class UtilTest {
 
@@ -183,7 +185,7 @@ public final class UtilTest {
   @Test
   public void testPowershell() {
     if (Util.operatingSystem == 'w') {
-      String[] winDirs = Util.getWinDirs("3EB685DB-65F9-4CF6-A03A-E3EF65729F3D", "F1B32785-6FBA-4FCF-9D55-7B8E7F157091");
+      String[] winDirs = Util.getWinDirs(UUID.fromString("3EB685DB-65F9-4CF6-A03A-E3EF65729F3D"), UUID.fromString("F1B32785-6FBA-4FCF-9D55-7B8E7F157091"));
       for (String winDir : winDirs) {
         assertNotNull(winDir);
       }

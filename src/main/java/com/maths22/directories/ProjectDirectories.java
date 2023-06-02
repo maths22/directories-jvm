@@ -1,6 +1,8 @@
-package dev.dirs;
+package com.maths22.directories;
 
-import static dev.dirs.Util.*;
+import java.util.UUID;
+
+import static com.maths22.directories.Util.*;
 
 /** {@code ProjectDirectories} computes the location of cache, config or data directories for a specific application,
   * which are derived from the standard directories and the name of the project/organization.
@@ -253,7 +255,7 @@ public final class ProjectDirectories {
         preferenceDir = homeDir + "/Library/Preferences/"         + path;
         break;
       case WIN:
-        String[] winDirs = getWinDirs("3EB685DB-65F9-4CF6-A03A-E3EF65729F3D", "F1B32785-6FBA-4FCF-9D55-7B8E7F157091");
+        String[] winDirs = getWinDirs(UUID.fromString("3EB685DB-65F9-4CF6-A03A-E3EF65729F3D"), UUID.fromString("F1B32785-6FBA-4FCF-9D55-7B8E7F157091"));
         String appDataRoaming = winDirs[0] + '\\' + path;
         String appDataLocal   = winDirs[1] + '\\' + path;
         dataDir       = appDataRoaming + "\\data";
