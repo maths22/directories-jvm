@@ -1,6 +1,9 @@
-package dev.dirs;
+package com.maths22.directories;
 
-import static dev.dirs.Util.*;
+import java.util.Objects;
+import java.util.UUID;
+
+import static com.maths22.directories.Util.*;
 
 /** {@code ProjectDirectories} computes the location of cache, config or data directories for a specific application,
   * which are derived from the standard directories and the name of the project/organization.
@@ -231,7 +234,7 @@ public final class ProjectDirectories {
     String preferenceDir;
     String runtimeDir = null;
     switch (operatingSystem) {
-      case LIN:
+      case LINUX:
       case BSD:
       case SOLARIS:
       case IBMI:
@@ -252,8 +255,8 @@ public final class ProjectDirectories {
         dataLocalDir  = dataDir;
         preferenceDir = homeDir + "/Library/Preferences/"         + path;
         break;
-      case WIN:
-        String[] winDirs = getWinDirs("3EB685DB-65F9-4CF6-A03A-E3EF65729F3D", "F1B32785-6FBA-4FCF-9D55-7B8E7F157091");
+      case WINDOWS:
+        String[] winDirs = getWinDirs(UUID.fromString("3EB685DB-65F9-4CF6-A03A-E3EF65729F3D"), UUID.fromString("F1B32785-6FBA-4FCF-9D55-7B8E7F157091"));
         String appDataRoaming = winDirs[0] + '\\' + path;
         String appDataLocal   = winDirs[1] + '\\' + path;
         dataDir       = appDataRoaming + "\\data";
@@ -263,7 +266,7 @@ public final class ProjectDirectories {
         preferenceDir = configDir;
         break;
       default:
-        throw new UnsupportedOperatingSystemException("Project directories are not supported on " + operatingSystemName);
+        throw new UnsupportedOperatingSystemException("Project directories are not supported on " + operatingSystem);
     }
     return new ProjectDirectories(path, cacheDir, configDir, dataDir, dataLocalDir, preferenceDir, runtimeDir);
   }
@@ -293,7 +296,7 @@ public final class ProjectDirectories {
       throw new UnsupportedOperationException("organization and application arguments cannot both be null/empty");
     String path;
     switch (operatingSystem) {
-      case LIN:
+      case LINUX:
       case BSD:
       case SOLARIS:
       case IBMI:
@@ -303,18 +306,18 @@ public final class ProjectDirectories {
       case MAC:
         path = macOSApplicationPath(qualifier, organization, application);
         break;
-      case WIN:
+      case WINDOWS:
         path = windowsApplicationPath(qualifier, organization, application);
         break;
       default:
-        throw new UnsupportedOperatingSystemException("Project directories are not supported on " + operatingSystemName);
+        throw new UnsupportedOperatingSystemException("Project directories are not supported on " + operatingSystem);
     }
     return fromPath(path);
   }
 
   @Override
   public String toString() {
-    return "ProjectDirectories (" + operatingSystemName + "):\n" +
+    return "ProjectDirectories (" + operatingSystem + "):\n" +
         "  projectPath   = '" + projectPath + "'\n" +
         "  cacheDir      = '" + cacheDir + "'\n" +
         "  configDir     = '" + configDir + "'\n" +
@@ -332,17 +335,17 @@ public final class ProjectDirectories {
     ProjectDirectories that = (ProjectDirectories) o;
 
     if (!projectPath.equals(that.projectPath)) return false;
-    if (cacheDir      != null ? !cacheDir     .equals(that.cacheDir)      : that.cacheDir      != null)
+    if (!Objects.equals(cacheDir, that.cacheDir))
       return false;
-    if (configDir     != null ? !configDir    .equals(that.configDir)     : that.configDir     != null)
+    if (!Objects.equals(configDir, that.configDir))
       return false;
-    if (dataDir       != null ? !dataDir      .equals(that.dataDir)       : that.dataDir       != null)
+    if (!Objects.equals(dataDir, that.dataDir))
       return false;
-    if (dataLocalDir  != null ? !dataLocalDir .equals(that.dataLocalDir)  : that.dataLocalDir  != null)
+    if (!Objects.equals(dataLocalDir, that.dataLocalDir))
       return false;
-    if (preferenceDir != null ? !preferenceDir.equals(that.preferenceDir) : that.preferenceDir != null)
+    if (!Objects.equals(preferenceDir, that.preferenceDir))
       return false;
-    if (runtimeDir    != null ? !runtimeDir   .equals(that.runtimeDir)    : that.runtimeDir    != null)
+    if (!Objects.equals(runtimeDir, that.runtimeDir))
       return false;
     return true;
   }

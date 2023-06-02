@@ -1,4 +1,4 @@
-package dev.dirs;
+package com.maths22.directories;
 
 import org.junit.Test;
 

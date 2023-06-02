@@ -1,22 +1,41 @@
-name: Linux build
+name: Build and test
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, ffm-poc ]
   pull_request:
     branches: [ main ]
 
 jobs:
   build:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up JDK 11
-      uses: actions/setup-java@v2
+    - uses: actions/checkout@v3
+    - name: Set up all JDKs
+      uses: actions/setup-java@v3
       with:
-        java-version: '11'
-        distribution: 'adopt'
+        java-version: |
+          8
+          17
+          18
+          19
+          20
+        distribution: 'corretto'
     - name: Run tests
-      run: sbt test
+      run: ./gradlew check
+    - name: Archive test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results-${{ matrix.os }}
+        path: build/reports/tests
+    - name: Run tests
+      run: ./gradlew check
+      env:
+        FORCE_WINDOWS_FALLBACK: '1'
+      if: matrix.os == 'windows-latest'

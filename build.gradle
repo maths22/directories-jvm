@@ -1,0 +1,69 @@
+
+plugins {
+    // Apply the java-library plugin for API and implementation separation.
+    id 'java-library'
+    id 'me.champeau.mrjar' version '0.1.1'
+}
+
+repositories {
+    // Use Maven Central for resolving dependencies.
+    mavenCentral()
+}
+
+multiRelease {
+    targetVersions 8, 17, 18, 19, 20
+}
+
+tasks.withType(JavaCompile).configureEach {
+    if(it.sourceCompatibility == '19' || it.sourceCompatibility == '20') {
+        options.compilerArgs += "--enable-preview"
+    }
+}
+
+compileJava17Java {
+    options.compilerArgs += ["--add-modules", "jdk.incubator.foreign"]
+}
+
+compileJava18Java {
+    options.compilerArgs += ["--add-modules", "jdk.incubator.foreign"]
+}
+
+compileJava19Java {
+    options.compilerArgs += "--enable-preview"
+}
+
+compileJava20Java {
+    options.compilerArgs += "--enable-preview"
+}
+
+
+dependencies {
+}
+
+testing {
+    suites {
+        // Configure the built-in test suite
+        test {
+            // Use JUnit4 test framework
+            useJUnit('4.13.2')
+        }
+    }
+}
+
+if((System.getenv("FORCE_WINDOWS_FALLBACK") ?: "0") != "1") {
+    java17Test {
+        jvmArgs += ["--enable-native-access=ALL-UNNAMED", "--add-modules", "jdk.incubator.foreign"]
+    }
+
+    java18Test {
+        jvmArgs += ["--enable-native-access=ALL-UNNAMED", "--add-modules", "jdk.incubator.foreign"]
+    }
+
+    java19Test {
+        jvmArgs += ["--enable-native-access=ALL-UNNAMED", "--enable-preview"]
+    }
+
+    java20Test {
+        jvmArgs += ["--enable-native-access=ALL-UNNAMED", "--enable-preview"]
+    }
+}

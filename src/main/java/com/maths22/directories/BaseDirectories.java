@@ -1,6 +1,9 @@
-package dev.dirs;
+package com.maths22.directories;
 
-import static dev.dirs.Util.*;
+import java.util.Objects;
+import java.util.UUID;
+
+import static com.maths22.directories.Util.*;
 
 /** {@code BaseDirectories} provides paths of user-invisible standard directories, following the conventions of the operating system the library is running on.
   * <p>
@@ -248,7 +251,7 @@ public final class BaseDirectories {
 
   private BaseDirectories() {
     switch (operatingSystem) {
-      case LIN:
+      case LINUX:
       case BSD:
       case SOLARIS:
       case IBMI:
@@ -272,8 +275,8 @@ public final class BaseDirectories {
         preferenceDir = homeDir + "/Library/Preferences/";
         runtimeDir    = null;
         break;
-      case WIN:
-        String[] winDirs = getWinDirs("5E6C858F-0E22-4760-9AFE-EA3317B67173", "3EB685DB-65F9-4CF6-A03A-E3EF65729F3D", "F1B32785-6FBA-4FCF-9D55-7B8E7F157091");
+      case WINDOWS:
+        String[] winDirs = getWinDirs(UUID.fromString("5E6C858F-0E22-4760-9AFE-EA3317B67173"), UUID.fromString("3EB685DB-65F9-4CF6-A03A-E3EF65729F3D"), UUID.fromString("F1B32785-6FBA-4FCF-9D55-7B8E7F157091"));
         homeDir       = winDirs[0];
         dataDir       = winDirs[1];
         dataLocalDir  = winDirs[2];
@@ -284,13 +287,13 @@ public final class BaseDirectories {
         runtimeDir    = null;
         break;
       default:
-        throw new UnsupportedOperatingSystemException("Base directories are not supported on " + operatingSystemName);
+        throw new UnsupportedOperatingSystemException("Base directories are not supported on " + operatingSystem);
     }
   }
 
   @Override
   public String toString() {
-    return "BaseDirectories (" + operatingSystemName + "):\n" +
+    return "BaseDirectories (" + operatingSystem + "):\n" +
         "  homeDir       = '" + homeDir        + "'\n" +
         "  cacheDir      = '" + cacheDir       + "'\n" +
         "  configDir     = '" + configDir      + "'\n" +
@@ -308,21 +311,21 @@ public final class BaseDirectories {
 
     BaseDirectories that = (BaseDirectories) o;
 
-    if (homeDir       != null ? !homeDir      .equals(that.homeDir)       : that.homeDir       != null)
+    if (!Objects.equals(homeDir, that.homeDir))
       return false;
-    if (cacheDir      != null ? !cacheDir     .equals(that.cacheDir)      : that.cacheDir      != null)
+    if (!Objects.equals(cacheDir, that.cacheDir))
       return false;
-    if (configDir     != null ? !configDir    .equals(that.configDir)     : that.configDir     != null)
+    if (!Objects.equals(configDir, that.configDir))
       return false;
-    if (dataDir       != null ? !dataDir      .equals(that.dataDir)       : that.dataDir       != null)
+    if (!Objects.equals(dataDir, that.dataDir))
       return false;
-    if (dataLocalDir  != null ? !dataLocalDir .equals(that.dataLocalDir)  : that.dataLocalDir  != null)
+    if (!Objects.equals(dataLocalDir, that.dataLocalDir))
       return false;
-    if (executableDir != null ? !executableDir.equals(that.executableDir) : that.executableDir != null)
+    if (!Objects.equals(executableDir, that.executableDir))
       return false;
-    if (preferenceDir != null ? !preferenceDir.equals(that.preferenceDir) : that.preferenceDir != null)
+    if (!Objects.equals(preferenceDir, that.preferenceDir))
       return false;
-    if (runtimeDir     != null ? !runtimeDir    .equals(that.runtimeDir)     : that.runtimeDir     != null)
+    if (!Objects.equals(runtimeDir, that.runtimeDir))
       return false;
     return true;
   }

@@ -1,6 +1,9 @@
-package dev.dirs;
+package com.maths22.directories;
 
-import static dev.dirs.Util.*;
+import java.util.Objects;
+import java.util.UUID;
+
+import static com.maths22.directories.Util.*;
 
 /** {@code UserDirectories} provides paths of user-facing standard directories, following the conventions of the operating system the library is running on.
   *
@@ -300,7 +303,7 @@ public final class UserDirectories {
 
   private UserDirectories() {
     switch (operatingSystem) {
-      case LIN:
+      case LINUX:
       case BSD:
       case SOLARIS:
       case AIX:
@@ -340,17 +343,17 @@ public final class UserDirectories {
         templateDir   = null;
         videoDir      = homeDir + "/Movies";
         break;
-      case WIN:
+      case WINDOWS:
         String[] winDirs = getWinDirs(
-            "5E6C858F-0E22-4760-9AFE-EA3317B67173",
-            "4BD8D571-6D19-48D3-BE97-422220080E43",
-            "B4BFCC3A-DB2C-424C-B029-7FE99A87C641",
-            "FDD39AD0-238F-46AF-ADB4-6C85480369C7",
-            "374DE290-123F-4565-9164-39C4925E467B",
-            "33E28130-4E1E-4676-835A-98395C3BC3BB",
-            "DFDF76A2-C82A-4D63-906A-5644AC457385",
-            "A63293E8-664E-48DB-A079-DF759E0509F7",
-            "18989B1D-99B5-455B-841C-AB7C74E4DDFC");
+                UUID.fromString("5E6C858F-0E22-4760-9AFE-EA3317B67173"),
+                UUID.fromString("4BD8D571-6D19-48D3-BE97-422220080E43"),
+                UUID.fromString("B4BFCC3A-DB2C-424C-B029-7FE99A87C641"),
+                UUID.fromString("FDD39AD0-238F-46AF-ADB4-6C85480369C7"),
+                UUID.fromString("374DE290-123F-4565-9164-39C4925E467B"),
+                UUID.fromString("33E28130-4E1E-4676-835A-98395C3BC3BB"),
+                UUID.fromString("DFDF76A2-C82A-4D63-906A-5644AC457385"),
+                UUID.fromString("A63293E8-664E-48DB-A079-DF759E0509F7"),
+                UUID.fromString("18989B1D-99B5-455B-841C-AB7C74E4DDFC"));
         homeDir       = winDirs[0];
         audioDir      = winDirs[1];
         fontDir       = null;
@@ -363,13 +366,13 @@ public final class UserDirectories {
         videoDir      = winDirs[8];
         break;
       default:
-        throw new UnsupportedOperatingSystemException("User directories are not supported on " + operatingSystemName);
+        throw new UnsupportedOperatingSystemException("User directories are not supported on " + operatingSystem);
     }
   }
 
   @Override
   public String toString() {
-    return "UserDirectories (" + operatingSystemName + "):\n" +
+    return "UserDirectories (" + operatingSystem + "):\n" +
         "  homeDir     = '" + homeDir     + "'\n" +
         "  audioDir    = '" + audioDir    + "'\n" +
         "  fontDir     = '" + fontDir     + "'\n" +
@@ -389,25 +392,25 @@ public final class UserDirectories {
 
     UserDirectories that = (UserDirectories) o;
 
-    if (homeDir     != null ? !homeDir    .equals(that.homeDir)     : that.homeDir     != null)
+    if (!Objects.equals(homeDir, that.homeDir))
       return false;
-    if (audioDir    != null ? !audioDir   .equals(that.audioDir)    : that.audioDir    != null)
+    if (!Objects.equals(audioDir, that.audioDir))
       return false;
-    if (fontDir     != null ? !fontDir    .equals(that.fontDir)     : that.fontDir     != null)
+    if (!Objects.equals(fontDir, that.fontDir))
       return false;
-    if (desktopDir  != null ? !desktopDir .equals(that.desktopDir)  : that.desktopDir  != null)
+    if (!Objects.equals(desktopDir, that.desktopDir))
       return false;
-    if (documentDir != null ? !documentDir.equals(that.documentDir) : that.documentDir != null)
+    if (!Objects.equals(documentDir, that.documentDir))
       return false;
-    if (downloadDir != null ? !downloadDir.equals(that.downloadDir) : that.downloadDir != null)
+    if (!Objects.equals(downloadDir, that.downloadDir))
       return false;
-    if (pictureDir  != null ? !pictureDir .equals(that.pictureDir)  : that.pictureDir  != null)
+    if (!Objects.equals(pictureDir, that.pictureDir))
       return false;
-    if (publicDir   != null ? !publicDir  .equals(that.publicDir)   : that.publicDir   != null)
+    if (!Objects.equals(publicDir, that.publicDir))
       return false;
-    if (templateDir != null ? !templateDir.equals(that.templateDir) : that.templateDir != null)
+    if (!Objects.equals(templateDir, that.templateDir))
       return false;
-    if (videoDir    != null ? !videoDir   .equals(that.videoDir)    : that.videoDir    != null)
+    if (!Objects.equals(videoDir, that.videoDir))
       return false;
 
     return true;

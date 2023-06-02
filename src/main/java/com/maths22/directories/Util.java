@@ -1,4 +1,4 @@
-package dev.dirs;
+package com.maths22.directories;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -6,7 +6,12 @@ import java.io.InputStreamReader;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Locale;
+import java.util.UUID;
+
+import static com.maths22.directories.OperatingSystem.*;
 
 final class Util {
 
@@ -15,27 +20,39 @@ final class Util {
   }
 
 
-  static final String operatingSystemName = System.getProperty("os.name");
-  static final char operatingSystem;
-  static final char LIN = 'l';
-  static final char MAC = 'm';
-  static final char WIN = 'w';
-  static final char BSD = 'b';
-  static final char SOLARIS = 's';
-  static final char IBMI = 'i';
-  static final char AIX = 'a';
+  static final OperatingSystem operatingSystem;
 
   static final String UTF8_BOM = "\ufeff";
+  static boolean useNativeWindows = false;
+  static final String POWERSHELL_WARNING_PROPERTY = "com.maths22.directories.powershellWarning";
+  static final String POWERSHELL_WARNING_FOOTER = " (or silence with -D" + POWERSHELL_WARNING_PROPERTY + "=disabled)";
 
   static {
+    // Run on all OSes so potential issues are flagged on not windows
+    try {
+      useNativeWindows = WindowsNativeUtil.isSupported();
+    } catch (UnsupportedClassVersionError ex) {
+      if(!"disabled".equals(System.getProperty(POWERSHELL_WARNING_PROPERTY))) {
+        System.err.println("Preview features not enabled for windows directory detection, falling back to less reliable methods. " +
+                           "Please enable with `--enable-preview`" + POWERSHELL_WARNING_FOOTER);
+      }
+    } catch(NoClassDefFoundError ex) {
+      if(!"disabled".equals(System.getProperty(POWERSHELL_WARNING_PROPERTY))) {
+        System.err.println("Module jdk.incubator.foreign not enabled for windows directory detection, falling back to less reliable methods. " +
+                           "Please enable with `--add-modules jdk.incubator.foreign`" + POWERSHELL_WARNING_FOOTER);
+      }
+    }
+
+    String operatingSystemName = System.getProperty("os.name");
+
     final String os = operatingSystemName.toLowerCase(Locale.ROOT);
     if (os.contains("linux"))
-      operatingSystem = LIN;
+      operatingSystem = LINUX;
     else if (os.contains("mac"))
       operatingSystem = MAC;
-    else if (os.contains("windows"))
-      operatingSystem = WIN;
-    else if (os.contains("bsd"))
+    else if (os.contains("windows")) {
+      operatingSystem = WINDOWS;
+    } else if (os.contains("bsd"))
       operatingSystem = BSD;
     else if (os.contains("sunos"))
       operatingSystem = SOLARIS;
@@ -52,23 +69,23 @@ final class Util {
   // This string needs to end up being a multiple of 3 bytes after conversion to UTF-16. (It is currently 1200 bytes.)
   // This is because Base64 converts 3 bytes to 4 letters; other numbers of bytes would introduce padding, which
   // would make it harder to simply concatenate this precomputed string with whatever directories the user requests.
-  static final String SCRIPT_START_BASE64 = operatingSystem == 'w' ? toUTF16LEBase64("& {\n" +
-      "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8\n" +
-      "Add-Type @\"\n" +
-      "using System;\n" +
-      "using System.Runtime.InteropServices;\n" +
-      "public class Dir {\n" +
-      "  [DllImport(\"shell32.dll\")]\n" +
-      "  private static extern int SHGetKnownFolderPath([MarshalAs(UnmanagedType.LPStruct)] Guid rfid, uint dwFlags, IntPtr hToken, out IntPtr pszPath);\n" +
-      "  public static string GetKnownFolderPath(string rfid) {\n" +
-      "    IntPtr pszPath;\n" +
-      "    if (SHGetKnownFolderPath(new Guid(rfid), 0, IntPtr.Zero, out pszPath) != 0) return \"\";\n" +
-      "    string path = Marshal.PtrToStringUni(pszPath);\n" +
-      "    Marshal.FreeCoTaskMem(pszPath);\n" +
-      "    return path;\n" +
-      "  }\n" +
-      "}\n" +
-      "\"@\n") : null;
+  static final String SCRIPT_START_BASE64 = operatingSystem == WINDOWS ? toUTF16LEBase64("& {\n" +
+                                                                                         "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8\n" +
+                                                                                         "Add-Type @\"\n" +
+                                                                                         "using System;\n" +
+                                                                                         "using System.Runtime.InteropServices;\n" +
+                                                                                         "public class Dir {\n" +
+                                                                                         "  [DllImport(\"shell32.dll\")]\n" +
+                                                                                         "  private static extern int SHGetKnownFolderPath([MarshalAs(UnmanagedType.LPStruct)] Guid rfid, uint dwFlags, IntPtr hToken, out IntPtr pszPath);\n" +
+                                                                                         "  public static string GetKnownFolderPath(string rfid) {\n" +
+                                                                                         "    IntPtr pszPath;\n" +
+                                                                                         "    if (SHGetKnownFolderPath(new Guid(rfid), 0, IntPtr.Zero, out pszPath) != 0) return \"\";\n" +
+                                                                                         "    string path = Marshal.PtrToStringUni(pszPath);\n" +
+                                                                                         "    Marshal.FreeCoTaskMem(pszPath);\n" +
+                                                                                         "    return path;\n" +
+                                                                                         "  }\n" +
+                                                                                         "}\n" +
+                                                                                         "\"@\n") : null;
 
   static void requireNonNull(Object value) {
     if (value == null)
@@ -101,9 +118,7 @@ final class Util {
     boolean arg1Slash = arg1.endsWith("/");
     boolean slashArg2 = arg2.startsWith("/");
     if (arg1Slash && slashArg2) {
-      StringBuilder buf = new StringBuilder(arg1.length() + arg2.length() - 1);
-      buf.append(arg1, 0, arg1.length() - 1).append(arg2);
-      return buf.toString();
+      return arg1.substring(0, arg1.length() - 1) + arg2;
     } else if (!arg1Slash && !slashArg2) {
       return arg1 + '/' + arg2;
     } else {
@@ -135,9 +150,9 @@ final class Util {
     String[] commands = new String[3];
     commands[0] = "/bin/sh";
     commands[1] = "-c";
-    for (int i = 0; i < dirsLength; i++) {
+    for (String dir : dirs) {
       buf.append("xdg-user-dir ");
-      buf.append(dirs[i]);
+      buf.append(dir);
       buf.append(';');
     }
     commands[2] = buf.toString();
@@ -148,30 +163,34 @@ final class Util {
     }
   }
 
-  static String[] getWinDirs(String... guids) {
-    int guidsLength = guids.length;
-    StringBuilder buf = new StringBuilder(guidsLength * 68);
-    for (int i = 0; i < guidsLength; i++) {
-      buf.append("[Dir]::GetKnownFolderPath(\"");
-      buf.append(guids[i]);
-      buf.append("\")\n");
-    }
+  static String[] getWinDirs(UUID... guids) {
+    if(useNativeWindows) {
+      return Arrays.stream(guids).map(WindowsNativeUtil::getWinDir).toArray(String[]::new);
+    } else {
+      int guidsLength = guids.length;
+      StringBuilder buf = new StringBuilder(guidsLength * 68);
+      for (UUID guid : guids) {
+        buf.append("[Dir]::GetKnownFolderPath(\"");
+        buf.append(guid.toString());
+        buf.append("\")\n");
+      }
 
-    String encodedCommand = SCRIPT_START_BASE64 + toUTF16LEBase64(buf + "}");
-    String path = System.getenv("Path");
-    String[] dirs = path == null ? new String[0] : path.split(File.pathSeparator);
-    if (dirs.length == 0) {
-      return windowsFallback(guidsLength, encodedCommand);
-    }
-    try {
-      return runWinCommands(guidsLength, dirs, encodedCommand);
-    } catch (IOException e) {
-      return windowsFallback(guidsLength, encodedCommand);
+      String encodedCommand = SCRIPT_START_BASE64 + toUTF16LEBase64(buf + "}");
+      String path = System.getenv("Path");
+      String[] dirs = path == null ? new String[0] : path.split(File.pathSeparator);
+      if (dirs.length == 0) {
+        return windowsFallback(guidsLength, encodedCommand);
+      }
+      try {
+        return runWinCommands(guidsLength, dirs, encodedCommand);
+      } catch (IOException e) {
+        return windowsFallback(guidsLength, encodedCommand);
+      }
     }
   }
 
   private static String toUTF16LEBase64(String script) {
-    byte[] scriptInUtf16LEBytes = script.getBytes(Charset.forName("UTF-16LE"));
+    byte[] scriptInUtf16LEBytes = script.getBytes(StandardCharsets.UTF_16LE);
     if (base64EncodeMethod == null) {
       initBase64Encoding();
     }
@@ -204,7 +223,7 @@ final class Util {
     try {
       for (int i = 0; i < expectedResultLines; i++) {
         String line = reader.readLine();
-        if (i == 0 && operatingSystem == 'w' && line != null && line.startsWith(UTF8_BOM))
+        if (i == 0 && operatingSystem == WINDOWS && line != null && line.startsWith(UTF8_BOM))
           line = line.substring(UTF8_BOM.length());
         results[i] = line;
       }
@@ -233,7 +252,7 @@ final class Util {
             // note that this has been deprecated in new version of Windows
             // https://devblogs.microsoft.com/powershell/windows-powershell-2-0-deprecation/
             // for some set up, running this requires installation of extra dependency on Windows host
-            stdout = runCommands(guidsLength, Charset.forName("UTF-8"),
+            stdout = runCommands(guidsLength, StandardCharsets.UTF_8,
                     commandFile.toString(),
                     "-version",
                     "2",
@@ -244,7 +263,7 @@ final class Util {
             if (stdout[0] != null) return stdout;
 
             // fall-forward to higher version of powershell
-            stdout = runCommands(guidsLength, Charset.forName("UTF-8"),
+            stdout = runCommands(guidsLength, StandardCharsets.UTF_8,
                     commandFile.toString(),
                     "-NoProfile",
                     "-EncodedCommand",
