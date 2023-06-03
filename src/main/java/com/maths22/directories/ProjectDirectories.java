@@ -28,6 +28,7 @@ public final class ProjectDirectories {
       final String configDir,
       final String dataDir,
       final String dataLocalDir,
+      final String logDir,
       final String preferenceDir,
       final String runtimeDir) {
 
@@ -38,6 +39,7 @@ public final class ProjectDirectories {
     this.configDir     = configDir;
     this.dataDir       = dataDir;
     this.dataLocalDir  = dataLocalDir;
+    this.logDir        = logDir;
     this.preferenceDir = preferenceDir;
     this.runtimeDir    = runtimeDir;
   }
@@ -160,6 +162,34 @@ public final class ProjectDirectories {
     */
   public final String dataLocalDir;
 
+  /** Returns the path to the project's log directory,
+   * in which {@code <project_path>} is the value of {@link ProjectDirectories#projectPath}.
+   * <br><br>
+   * <table border="1" cellpadding="1" cellspacing="0">
+   * <tr>
+   * <th align="left">Platform</th>
+   * <th align="left">Value</th>
+   * <th align="left">Example</th>
+   * </tr>
+   * <tr>
+   * <td>Linux/BSD</td>
+   * <td>{@code $XDG_STATE_HOME}/{@code <project_path>} or {@code $HOME}/.local/state/{@code <project_path>}</td>
+   * <td>/home/alice/.local/state/barapp</td>
+   * </tr>
+   * <tr>
+   * <td>macOS</td>
+   * <td>{@code $HOME}/Library/Logs/{@code <project_path>}</td>
+   * <td>/Users/Alice/Library/Logs/com.Foo-Corp.Bar-App</td>
+   * </tr>
+   * <tr>
+   * <td>Windows</td>
+   * <td>{@code {FOLDERID_LocalAppData}}\{@code <project_path>}\logs</td>
+   * <td>C:\Users\Alice\AppData\Local\Foo Corp\Bar App\logs</td>
+   * </tr>
+   * </table>
+   */
+  public final String logDir;
+
   /** Returns the path to the project's preference directory,
    * in which {@code <project_path>} is the value of {@link ProjectDirectories#projectPath}.
    * <br><br>
@@ -230,6 +260,7 @@ public final class ProjectDirectories {
     String cacheDir;
     String configDir;
     String dataDir;
+    String logDir;
     String dataLocalDir;
     String preferenceDir;
     String runtimeDir = null;
@@ -243,6 +274,7 @@ public final class ProjectDirectories {
         cacheDir      = defaultIfNullOrEmptyExtended(System.getenv("XDG_CACHE_HOME"),  path, homeDir + "/.cache/",       path);
         configDir     = defaultIfNullOrEmptyExtended(System.getenv("XDG_CONFIG_HOME"), path, homeDir + "/.config/",      path);
         dataDir       = defaultIfNullOrEmptyExtended(System.getenv("XDG_DATA_HOME"),   path, homeDir + "/.local/share/", path);
+        logDir        = defaultIfNullOrEmptyExtended(System.getenv("XDG_STATE_HOME"),  path, homeDir + "/.local/state/", path);
         dataLocalDir  = dataDir;
         preferenceDir = configDir;
         runtimeDir    = linuxRuntimeDir(path);
@@ -252,6 +284,7 @@ public final class ProjectDirectories {
         cacheDir      = homeDir + "/Library/Caches/"              + path;
         configDir     = homeDir + "/Library/Application Support/" + path;
         dataDir       = homeDir + "/Library/Application Support/" + path;
+        logDir        = homeDir + "/Library/Logs/"                + path;
         dataLocalDir  = dataDir;
         preferenceDir = homeDir + "/Library/Preferences/"         + path;
         break;
@@ -261,6 +294,7 @@ public final class ProjectDirectories {
         String appDataLocal   = winDirs[1] + '\\' + path;
         dataDir       = appDataRoaming + "\\data";
         dataLocalDir  = appDataLocal   + "\\data";
+        logDir        = appDataLocal   + "\\logs";
         configDir     = appDataRoaming + "\\config";
         cacheDir      = appDataLocal   + "\\cache";
         preferenceDir = configDir;
@@ -268,7 +302,7 @@ public final class ProjectDirectories {
       default:
         throw new UnsupportedOperatingSystemException("Project directories are not supported on " + operatingSystem);
     }
-    return new ProjectDirectories(path, cacheDir, configDir, dataDir, dataLocalDir, preferenceDir, runtimeDir);
+    return new ProjectDirectories(path, cacheDir, configDir, dataDir, dataLocalDir, logDir, preferenceDir, runtimeDir);
   }
 
   /** Creates a {@code ProjectDirectories} instance from values describing the project.
@@ -322,6 +356,7 @@ public final class ProjectDirectories {
         "  cacheDir      = '" + cacheDir + "'\n" +
         "  configDir     = '" + configDir + "'\n" +
         "  dataDir       = '" + dataDir + "'\n" +
+        "  logDir        = '" + logDir + "'\n" +
         "  dataLocalDir  = '" + dataLocalDir + "'\n" +
         "  preferenceDir = '" + preferenceDir + "'\n" +
         "  runtimeDir    = '" + runtimeDir + "'\n";
@@ -341,6 +376,8 @@ public final class ProjectDirectories {
       return false;
     if (!Objects.equals(dataDir, that.dataDir))
       return false;
+    if (!Objects.equals(logDir, that.logDir))
+      return false;
     if (!Objects.equals(dataLocalDir, that.dataLocalDir))
       return false;
     if (!Objects.equals(preferenceDir, that.preferenceDir))
@@ -356,6 +393,7 @@ public final class ProjectDirectories {
     result = 31 * result + (cacheDir      != null ? cacheDir     .hashCode() : 0);
     result = 31 * result + (configDir     != null ? configDir    .hashCode() : 0);
     result = 31 * result + (dataDir       != null ? dataDir      .hashCode() : 0);
+    result = 31 * result + (logDir        != null ? logDir       .hashCode() : 0);
     result = 31 * result + (dataLocalDir  != null ? dataLocalDir .hashCode() : 0);
     result = 31 * result + (preferenceDir != null ? preferenceDir.hashCode() : 0);
     result = 31 * result + (runtimeDir    != null ? runtimeDir   .hashCode() : 0);
