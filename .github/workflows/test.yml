@@ -25,6 +25,7 @@ jobs:
           18
           19
           20
+          21
         distribution: 'corretto'
     - name: Run tests
       run: ./gradlew check

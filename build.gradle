@@ -1,9 +1,12 @@
-
 plugins {
     // Apply the java-library plugin for API and implementation separation.
     id 'java-library'
+    id 'maven-publish'
     id 'me.champeau.mrjar' version '0.1.1'
 }
+
+group = "com.maths22"
+version = "0.1.1"
 
 repositories {
     // Use Maven Central for resolving dependencies.
@@ -11,11 +14,11 @@ repositories {
 }
 
 multiRelease {
-    targetVersions 8, 17, 18, 19, 20
+    targetVersions 8, 17, 18, 19, 20, 21
 }
 
 tasks.withType(JavaCompile).configureEach {
-    if(it.sourceCompatibility == '19' || it.sourceCompatibility == '20') {
+    if(it.sourceCompatibility == '19' || it.sourceCompatibility == '20' || it.sourceCompatibility == '21') {
         options.compilerArgs += "--enable-preview"
     }
 }
@@ -36,8 +39,36 @@ compileJava20Java {
     options.compilerArgs += "--enable-preview"
 }
 
+compileJava21Java {
+    options.compilerArgs += "--enable-preview"
+}
+
+
 
 dependencies {
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "fury"
+            url = "https://maven.fury.io/maths22/"
+
+            authentication {
+                basic(BasicAuthentication)
+            }
+
+            credentials {
+                username = System.getenv("GEMFURY_TOKEN")
+                password = "NOPASS"
+            }
+        }
+    }
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
 }
 
 testing {
