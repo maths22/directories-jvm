@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.maths22"
-version = "0.1.1"
+version = "0.1.2"
 
 repositories {
     // Use Maven Central for resolving dependencies.
@@ -42,8 +42,6 @@ compileJava20Java {
 compileJava21Java {
     options.compilerArgs += "--enable-preview"
 }
-
-
 
 dependencies {
 }
@@ -95,6 +93,10 @@ if((System.getenv("FORCE_WINDOWS_FALLBACK") ?: "0") != "1") {
     }
 
     java20Test {
+        jvmArgs += ["--enable-native-access=ALL-UNNAMED", "--enable-preview"]
+    }
+
+    java21Test {
         jvmArgs += ["--enable-native-access=ALL-UNNAMED", "--enable-preview"]
     }
 }

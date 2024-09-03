@@ -69,7 +69,8 @@ final class WindowsNativeUtil {
       if(invokeRes != 0) {
         return null;
       }
-      MemorySegment returnedString = retVal.get(ValueLayout.ADDRESS.withoutTargetLayout(), 0);
+      // Allow reading all the memory to find the null terminator and reinterpret to a more reasonable lentgh
+      MemorySegment returnedString = retVal.get(ValueLayout.ADDRESS, 0).reinterpret(Integer.MAX_VALUE);
       int offset;
       // Loop until overflow to find null terminator of wchar_t string (presumably we reach practical limits first)
       //noinspection OverflowingLoopIndex
