@@ -14,7 +14,7 @@ repositories {
 }
 
 multiRelease {
-    targetVersions 8, 17, 18, 19, 20, 21
+    targetVersions 8, 17, 18, 19, 20, 21, 22
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -98,5 +98,9 @@ if((System.getenv("FORCE_WINDOWS_FALLBACK") ?: "0") != "1") {
 
     java21Test {
         jvmArgs += ["--enable-native-access=ALL-UNNAMED", "--enable-preview"]
+    }
+
+    java22Test {
+        jvmArgs += ["--enable-native-access=ALL-UNNAMED"]
     }
 }
